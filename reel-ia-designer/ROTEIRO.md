@@ -3,7 +3,7 @@
 **Formato:** 1080x1920 · 30 fps (`ReelIA30`) ou 60 fps (`ReelIA60`) · 22 s · 12 cenas (uma quebra visual a cada 1,5 a 2,6 s)
 **Paleta:** fundo `#0A0A0F` · amarelo `#FFD60A` · verde `#39FF88` · branco `#F5F5F7` · vermelho `#FF3B5C` (só para "riscar" e alertar)
 **Fontes:** Montserrat 900/700 (títulos) · Inter 600 (texto de apoio)
-**Fonte da verdade:** `src/script.ts`. Este documento descreve o que está lá.
+**Fonte da verdade:** `src/videos/ia-designer.ts` (paleta `neonDark`). Este documento descreve o que está lá.
 
 ## Elementos fixos (o vídeo todo)
 
@@ -16,6 +16,8 @@
 | Geometria | Quadrado no canto superior direito (gira 45° por cena), círculo tracejado e marcadores "+" girando | `Background.tsx` |
 | Câmera | Zoom lento de 1.00 a 1.06 em toda cena (Ken Burns); na saída, zoom-out de 12% com fade nos últimos 5 frames | `components/SceneView.tsx` |
 | Zona segura | Conteúdo entre y=220 e y=1500 px, com margens laterais de 90 px, longe da UI do Reels | `theme.ts → SAFE` |
+
+No código, as cores são referenciadas por função: amarelo = `primary`, verde = `secondary`, vermelho = `alert`, branco = `text`.
 
 ## Cenas
 

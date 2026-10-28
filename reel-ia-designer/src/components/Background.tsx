@@ -1,11 +1,12 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { colors, HEIGHT, WIDTH } from "../theme";
+import { HEIGHT, usePalette, WIDTH } from "../theme";
 
 type Props = { accent: string; sceneFrame: number; sceneStarts: number[] };
 
 /** Fundo escuro com grid em movimento, brilho na cor da cena e geometria girando no ritmo. */
 export const Background: React.FC<Props> = ({ accent, sceneFrame, sceneStarts }) => {
+  const palette = usePalette();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
@@ -18,11 +19,11 @@ export const Background: React.FC<Props> = ({ accent, sceneFrame, sceneStarts })
   const sceneIndex = sceneStarts.filter((s) => s <= frame).length;
 
   return (
-    <AbsoluteFill style={{ background: colors.bg, overflow: "hidden" }}>
+    <AbsoluteFill style={{ background: palette.bg, overflow: "hidden" }}>
       {/* grid deslizando na diagonal */}
       <AbsoluteFill
         style={{
-          backgroundImage: `linear-gradient(${colors.grid} 2px, transparent 2px), linear-gradient(90deg, ${colors.grid} 2px, transparent 2px)`,
+          backgroundImage: `linear-gradient(${palette.grid} 2px, transparent 2px), linear-gradient(90deg, ${palette.grid} 2px, transparent 2px)`,
           backgroundSize: "90px 90px",
           backgroundPosition: `${t * 30}px ${t * 60}px`,
         }}
@@ -72,8 +73,8 @@ export const Background: React.FC<Props> = ({ accent, sceneFrame, sceneStarts })
           width: 360,
           height: 360,
           borderRadius: "50%",
-          border: `4px dashed ${colors.white}`,
-          opacity: 0.12,
+          border: `4px dashed ${palette.text}`,
+          opacity: palette.mode === "dark" ? 0.12 : 0.15,
           transform: `rotate(${-t * 25}deg) scale(${1 + beat * 0.1})`,
         }}
       />
@@ -90,7 +91,7 @@ export const Background: React.FC<Props> = ({ accent, sceneFrame, sceneStarts })
             position: "absolute",
             left: x,
             top: y + Math.sin(t * 2 + i) * 10,
-            color: i % 2 ? accent : colors.white,
+            color: i % 2 ? accent : palette.text,
             opacity: 0.4,
             fontSize: 48,
             fontWeight: 700,
@@ -103,7 +104,12 @@ export const Background: React.FC<Props> = ({ accent, sceneFrame, sceneStarts })
       ))}
       {/* vinheta */}
       <AbsoluteFill
-        style={{ background: "radial-gradient(circle, transparent 50%, rgba(0,0,0,0.65) 100%)" }}
+        style={{
+          background:
+            palette.mode === "dark"
+              ? "radial-gradient(circle, transparent 50%, rgba(0,0,0,0.65) 100%)"
+              : "radial-gradient(circle, transparent 55%, rgba(120,90,60,0.18) 100%)",
+        }}
       />
     </AbsoluteFill>
   );

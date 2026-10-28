@@ -1,34 +1,36 @@
 import React from "react";
 import { Easing, interpolate, random, spring } from "remotion";
-import type { Line } from "../script";
-import { colors, fonts } from "../theme";
+import type { Line } from "../types";
+import { usePalette } from "../theme";
 
 type Props = { line: Line; frame: number; fps: number; index: number };
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
-// Palavras em CAIXA ALTA ou começando com "#" ganham destaque automático em amarelo
+// Palavras em CAIXA ALTA ou começando com "#" ganham destaque automático na cor primária
 const isEmphasis = (w: string) =>
   w.startsWith("#") || (/[A-ZÀ-Ú]{2,}/.test(w) && w === w.toUpperCase());
 
 export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
   // k converte "frames a 30fps" para o fps atual: o timing é idêntico em 30 e 60 fps
+  const palette = usePalette();
   const k = fps / 30;
   const f = frame - Math.round((line.delay ?? 0) * fps);
   const size = line.size ?? 96;
-  const color = colors[line.color ?? "white"];
+  const color = palette[line.color ?? "text"];
   const isDisplay = size >= 120 || line.text === line.text.toUpperCase();
 
   const base: React.CSSProperties = {
-    fontFamily: fonts.display,
-    fontWeight: isDisplay ? 900 : 700,
+    fontFamily: palette.fonts.display,
+    fontWeight: isDisplay ? palette.fonts.displayWeight : palette.fonts.boldWeight,
     fontSize: size,
     lineHeight: 1.02,
     letterSpacing: isDisplay ? "-0.03em" : "-0.01em",
     color,
     textAlign: "center",
     position: "relative",
-    textShadow: line.color && line.color !== "white" ? `0 0 40px ${color}55` : "none",
+    textShadow:
+      palette.mode === "dark" && line.color && line.color !== "text" ? `0 0 40px ${color}55` : "none",
   };
 
   // Antes do delay: ocupa espaço (layout estável) mas invisível
@@ -85,8 +87,8 @@ export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
                   opacity: p,
                   transform: `translateY(${(1 - p) * 40}px)`,
                   filter: `blur(${(1 - p) * 10}px)`,
-                  color: isEmphasis(w) && !line.color ? colors.yellow : color,
-                  fontWeight: isEmphasis(w) ? 900 : base.fontWeight,
+                  color: isEmphasis(w) && !line.color ? palette.primary : color,
+                  fontWeight: isEmphasis(w) ? palette.fonts.displayWeight : base.fontWeight,
                 }}
               >
                 {w}
@@ -112,9 +114,9 @@ export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
       );
       const cursorOn = Math.floor(f / (8 * k)) % 2 === 0;
       return (
-        <div style={{ ...base, fontFamily: fonts.body, fontWeight: 600 }}>
+        <div style={{ ...base, fontFamily: palette.fonts.body, fontWeight: 600 }}>
           {line.text.slice(0, chars)}
-          <span style={{ opacity: cursorOn ? 1 : 0, color: colors.green }}>▍</span>
+          <span style={{ opacity: cursorOn ? 1 : 0, color: palette.secondary }}>▍</span>
         </div>
       );
     }
@@ -137,10 +139,10 @@ export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
               top: "50%",
               height: size * 0.13,
               marginTop: -size * 0.065,
-              background: colors.red,
+              background: palette.alert,
               transform: `scaleX(${bar}) rotate(-4deg)`,
               transformOrigin: "left center",
-              boxShadow: `0 0 30px ${colors.red}`,
+              boxShadow: palette.mode === "dark" ? `0 0 30px ${palette.alert}` : "none",
               borderRadius: 6,
             }}
           />
@@ -169,7 +171,7 @@ export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
           <div
             style={{
               ...base,
-              color: box > 0.55 ? colors.bg : color,
+              color: box > 0.55 ? palette.bg : color,
               textShadow: "none",
               transform: `scale(${interpolate(box, [0, 0.6, 1], [1, 1.06, 1])})`,
             }}
@@ -192,15 +194,15 @@ export const AnimatedLine: React.FC<Props> = ({ line, frame, fps, index }) => {
         position: "absolute",
         inset: 0,
         color: c,
-        mixBlendMode: "screen",
+        mixBlendMode: palette.mode === "dark" ? "screen" : "multiply",
         textShadow: "none",
         transform: `translate(${ox}px, 0)`,
         opacity: active ? 0.85 : 0,
       });
       return (
         <div style={{ position: "relative", opacity, transform: `translate(${dx}px, ${dy}px)` }}>
-          <div style={layer("#FF2D55", amp * 0.7)}>{line.text}</div>
-          <div style={layer("#00E5FF", -amp * 0.7)}>{line.text}</div>
+          <div style={layer(palette.mode === "dark" ? "#FF2D55" : palette.primary, amp * 0.7)}>{line.text}</div>
+          <div style={layer(palette.mode === "dark" ? "#00E5FF" : palette.secondary, -amp * 0.7)}>{line.text}</div>
           <div style={base}>{line.text}</div>
         </div>
       );

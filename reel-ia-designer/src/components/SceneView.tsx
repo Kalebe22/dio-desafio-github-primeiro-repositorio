@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, random } from "remotion";
-import type { Scene } from "../script";
-import { colors, SAFE } from "../theme";
+import type { Scene } from "../types";
+import { SAFE, usePalette } from "../theme";
 import { AnimatedLine } from "./AnimatedLine";
 import { Icon } from "./Icon";
 
@@ -13,8 +13,9 @@ const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
  * Uma cena = transição de entrada + "câmera" (zoom lento / tremida) + linhas animadas + saída.
  */
 export const SceneView: React.FC<Props> = ({ scene, frame, fps, durationInFrames }) => {
+  const palette = usePalette();
   const k = fps / 30;
-  const accent = colors[scene.accent];
+  const accent = palette[scene.accent];
   const inLen = 8 * k;
   const pIn = interpolate(frame, [0, inLen], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
 
@@ -89,7 +90,11 @@ export const SceneView: React.FC<Props> = ({ scene, frame, fps, durationInFrames
           transform: `translate(${tx}px, ${ty}px) scale(${scale * drift})`,
           filter: [
             blurX || blurY ? `url(#${filterId})` : "",
-            rgb ? `drop-shadow(${rgb}px 0 0 #FF2D55) drop-shadow(${-rgb}px 0 0 #00E5FF)` : "",
+            rgb
+              ? palette.mode === "dark"
+                ? `drop-shadow(${rgb}px 0 0 #FF2D55) drop-shadow(${-rgb}px 0 0 #00E5FF)`
+                : `drop-shadow(${rgb}px 0 0 ${palette.primary}) drop-shadow(${-rgb}px 0 0 ${palette.secondary})`
+              : "",
           ].join(" ") || undefined,
         }}
       >
@@ -97,7 +102,7 @@ export const SceneView: React.FC<Props> = ({ scene, frame, fps, durationInFrames
         {scene.badge && (
           <div
             style={{
-              fontFamily: "Inter, sans-serif",
+              fontFamily: palette.fonts.body,
               fontWeight: 600,
               fontSize: 34,
               letterSpacing: "0.12em",
@@ -129,15 +134,15 @@ export const SceneView: React.FC<Props> = ({ scene, frame, fps, durationInFrames
                 right: 0,
                 top: random(`gb-${scene.id}-${i}-${Math.floor(frame / (2 * k))}`) * 1800,
                 height: 20 + i * 18,
-                background: i === 1 ? accent : colors.white,
+                background: i === 1 ? accent : palette.text,
                 opacity: 0.5,
-                mixBlendMode: "difference",
+                mixBlendMode: palette.mode === "dark" ? "difference" : "multiply",
               }}
             />
           ))}
         </>
       )}
-      {flash > 0 && <AbsoluteFill style={{ background: colors.white, opacity: flash }} />}
+      {flash > 0 && <AbsoluteFill style={{ background: palette.flash, opacity: flash }} />}
     </AbsoluteFill>
   );
 };
