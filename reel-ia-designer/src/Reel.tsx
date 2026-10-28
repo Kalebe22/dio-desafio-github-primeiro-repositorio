@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { AbsoluteFill, continueRender, delayRender, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  continueRender,
+  delayRender,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { Background } from "./components/Background";
 import { ProgressBar } from "./components/ProgressBar";
 import { SceneView } from "./components/SceneView";
@@ -53,6 +62,7 @@ export const Reel: React.FC<ReelProps> = ({ videoId }) => {
           </Sequence>
         ))}
         <ProgressBar sceneStarts={items.map((i) => i.from)} />
+        {video.audio && <Audio src={staticFile(video.audio.src)} volume={video.audio.volume ?? 1} />}
       </AbsoluteFill>
     </PaletteContext.Provider>
   );

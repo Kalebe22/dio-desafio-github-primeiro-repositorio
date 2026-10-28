@@ -5,7 +5,7 @@ Gerador de Reels/Shorts verticais (1080x1920, 30 ou 60 fps) só com tipografia a
 | Vídeo | Arquivo | Paleta | Composições | Roteiro |
 |---|---|---|---|---|
 | 3 IAs que substituem um designer | `src/videos/ia-designer.ts` | `neonDark` (preto, amarelo, verde) | `ReelIA30`, `ReelIA60` | `ROTEIRO.md` |
-| Claude Cowork: como funciona | `src/videos/claude-cowork.ts` | `claudeWarm` (bege, laranja, verde-oliva) | `ClaudeCowork30`, `ClaudeCowork60` | `ROTEIRO-claude-cowork.md` |
+| Claude Cowork: como funciona (com narração) | `src/videos/claude-cowork.ts` | `claudeWarm` (bege, laranja, verde-oliva) | `ClaudeCowork30`, `ClaudeCowork60` | `ROTEIRO-claude-cowork.md` |
 
 ## Requisitos
 - Node 18+ (testado no Node 22)
@@ -54,11 +54,18 @@ src/
 4. As cores são por função (`primary`, `secondary`, `alert`, `text`, `muted`), então o mesmo roteiro funciona com qualquer paleta. Dentro de um efeito `words`, palavras em CAIXA ALTA ou que começam com `#` ganham a cor `primary` automaticamente.
 5. Rode `npm run studio` para ajustar e depois `npx remotion render <id>30 out/<nome>.mp4`.
 
-## Áudio (opcional)
-Coloque uma trilha em `public/musica.mp3` e adicione em `Reel.tsx`:
-```tsx
-import { Audio, staticFile } from "remotion";
-// dentro do <AbsoluteFill>:
-<Audio src={staticFile("musica.mp3")} volume={0.6} />
+## Áudio e narração
+Cada vídeo pode ter um áudio em `public/`, declarado no próprio roteiro:
+```ts
+audio: { src: "claude-cowork-narracao.mp3", volume: 1 },
 ```
-Para os cortes caírem na batida, ajuste o `duration` das cenas para múltiplos do tempo de uma batida (em 120 BPM, 1 batida = 0,5 s).
+Para sincronizar as cenas com uma narração:
+1. Gere a voz (por exemplo, na ElevenLabs) e salve o arquivo em `public/`.
+2. Transcreva o áudio com marcação de tempo por palavra.
+3. Escreva as cenas com `start` (o segundo em que a fala de cada cena começa) e passe tudo por `syncToVoice(cenas, fim)`, que calcula as durações. O exemplo completo está em `src/videos/claude-cowork.ts`.
+4. Use o `delay` das linhas para que cada palavra-chave entre na tela junto com a voz.
+
+Normalize a narração para o padrão das redes sociais (-14 LUFS):
+```bash
+ffmpeg -i bruto.mp3 -af "loudnorm=I=-14:TP=-1.5:LRA=11" -ar 48000 -b:a 192k public/narracao.mp3
+```

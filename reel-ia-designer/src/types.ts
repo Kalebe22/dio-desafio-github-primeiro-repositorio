@@ -59,6 +59,21 @@ export type Video = {
   title: string;
   palette: Palette;
   scenes: Scene[];
+  /** Narração/trilha em public/ (ex.: "narracao.mp3"), tocada a partir do frame 0 */
+  audio?: { src: string; volume?: number };
 };
+
+/**
+ * Sincroniza cenas com a narração: recebe cada cena com `start` (segundo em que a fala
+ * daquela cena começa) e calcula `duration` até o início da próxima cena (ou até `end`).
+ */
+export const syncToVoice = (
+  timed: (Omit<Scene, "duration"> & { start: number })[],
+  end: number,
+): Scene[] =>
+  timed.map(({ start, ...scene }, i) => ({
+    ...scene,
+    duration: +((timed[i + 1]?.start ?? end) - start).toFixed(3),
+  }));
 
 export const totalSeconds = (v: Video) => v.scenes.reduce((s, sc) => s + sc.duration, 0);
