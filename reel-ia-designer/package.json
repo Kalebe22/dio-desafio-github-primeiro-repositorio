@@ -1,0 +1,25 @@
+{
+  "name": "reel-ia-designer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reel faceless 1080x1920 em Remotion: 3 ferramentas de IA que substituem um designer",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render ReelIA30 out/reel-30fps.mp4",
+    "render:60": "remotion render ReelIA60 out/reel-60fps.mp4",
+    "still": "remotion still ReelIA30 out/thumb.png --frame=20",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.2.8",
+    "@fontsource/montserrat": "5.2.8",
+    "@remotion/cli": "4.0.539",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}
